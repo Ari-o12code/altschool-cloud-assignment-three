@@ -1,0 +1,64 @@
+---
+- name: Playbook for all hosts
+  hosts: all
+  become: true
+  tasks:
+    
+    - name: Install apache
+      package:
+        name: "{{apache_package}}"
+        state: latest
+        update_cache: yes
+
+- name: Playbook for webservers
+  hosts: webservers
+  become: yes
+  tasks:
+
+    - name: Ensure Apache is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Delete default index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+    
+    - name: Install git package
+      apt:
+       name: git
+       state: present
+
+    - name: Clone github repo
+      git:
+       repo: https://github.com/Ari-o12code/altschool-assignment-three.git
+       dest: /var/www/html
+       force: yes
+
+- name: Playbook for dbservers
+  hosts: dbservers
+  become: yes
+  tasks:
+     
+    - name: Ensure Apache is running
+      service:
+        name: httpd
+        state: started
+
+    - name: Delete default index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Install git package
+      yum:
+        name: git
+        state: present
+
+    - name: Clone github repo
+      git: 
+        repo: https://github.com/Ari-o12code/altschool-assignment-two.git
+        dest: /var/www/html
+        force: yes
